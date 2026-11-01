@@ -8,7 +8,7 @@ AXIOM is an internally integrated electronic wheel-locking system and smart secu
 
 ---
 
-## Features We Built
+## Features
 
 - **Internal Mechanical Deadbolt**: Concealed solenoid mechanism mechanically locks wheel rotation from inside the bike frame.
 - **Keyless Proximity Unlock**: Simply walk up to your bike! Disarms automatically via Bluetooth Low Energy (BLE) proximity or encrypted RFID/NFC tag handshakes.
