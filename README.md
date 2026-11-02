@@ -4,7 +4,7 @@
 
 Welcome to **AXIOM**!
 
-![AXIOM Logo](public/Teal Logo.png)
+![AXIOM Logo](<public/Teal Logo.png>)
 
 AXIOM is an internally integrated electronic wheel-locking system and smart security app designed for premium e-bikes and urban micro-mobility fleets. Instead of relying on heavy external chains or bulky locks that are easy targets for power tools, AXIOM locks your bike mechanically from **inside** the frame tubing. If someone tries to force it, they cannot bypass the mechanism without destroying the frame itself!
 
