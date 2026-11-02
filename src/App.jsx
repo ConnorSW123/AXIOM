@@ -22,6 +22,8 @@ import {
   Layers,
   Crosshair,
   Maximize2,
+  Camera,
+  Eye
 } from "lucide-react";
 
 import L from "leaflet";
@@ -136,6 +138,7 @@ const INITIAL_RIDES = [
 export default function App() {
   // Navigation State
   const [activeTab, setActiveTab] = useState("map"); // Default to interactive Leaflet Map tab
+  const [cameraActive, setCameraActive] = useState(true); // <-- Add this state
 
   // Hardware & Security State (Persisted)
   const [isLocked, setIsLocked] = useLocalStorage("axiom_is_locked", true);
@@ -377,17 +380,17 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
-      {/* --- HEADER & AXIOM BRANDING --- */}
-      <header className="border-b border-cyan-950/60 bg-[#0c1322]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Official Axiom Brand Logo */}
-          <div className="flex items-center">
-            <img
-              src="/Logo.png"
-              alt="AXIOM - Hidden in Design, Strong in Defense"
-              className="h-14 w-auto object-contain mix-blend-screen brightness-110"
-            />
-          </div>
+  {/* --- HEADER & AXIOM BRANDING (WHITE BACKGROUND) --- */}
+  <header className="border-b border-slate-200 bg-white backdrop-blur-md sticky top-0 z-50">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      {/* Official Axiom Brand Logo */}
+      <div className="flex items-center">
+        <img
+          src="/Teal Logo.png"
+          alt="AXIOM - Hidden in Design, Strong in Defense"
+          className="h-12 w-auto object-contain"
+        />
+      </div>
 
           {/* Quick Hardware Status Header Indicators */}
           <div className="flex items-center space-x-3 sm:space-x-5 text-xs">
@@ -479,6 +482,7 @@ export default function App() {
         <div className="flex space-x-2 border-b border-slate-800/80 pb-2 overflow-x-auto">
           {[
             { id: "map", label: "Interactive Map", icon: MapPin },
+            { id: "camera", label: "Tracker Camera", icon: Camera },
             { id: "security", label: "Security", icon: Shield },
             { id: "fitness", label: "Fitness & Telemetry", icon: Activity },
             { id: "diagnostics", label: "System", icon: Cpu },
@@ -1015,6 +1019,115 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* TAB 5: STANDALONE TRACKER CAMERA FEED */}
+{activeTab === "camera" && (
+  <div className="max-w-4xl mx-auto space-y-6">
+    <div className="border border-teal-900/80 bg-[#0e1626]/80 rounded-2xl overflow-hidden backdrop-blur-md">
+      
+      {/* Feed Status Header */}
+      <div className="bg-[#0b1220] px-5 py-4 border-b border-teal-900/80 flex items-center justify-between text-xs text-slate-300">
+        <div className="flex items-center space-x-2">
+          <Camera size={16} className="text-teal-400" />
+          <span className="font-bold tracking-wider text-slate-200">
+            TRACKER_OPTIC_FEED // CAM_01
+          </span>
+        </div>
+        <div className="flex items-center space-x-4">
+          <span className="flex items-center space-x-1.5">
+            <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse"></span>
+            <span className="text-teal-300 font-mono font-semibold">LIVE 1080P</span>
+          </span>
+          <button
+            onClick={() => setCameraActive(!cameraActive)}
+            className="hover:text-teal-300 underline text-xs font-mono"
+          >
+            {cameraActive ? "DISABLE" : "ENABLE"}
+          </button>
+        </div>
+      </div>
+
+      {/* Video Viewport & Target Reticle */}
+      <div className="relative aspect-video bg-[#070b12] flex items-center justify-center overflow-hidden border-b border-teal-900/80">
+        {cameraActive ? (
+          <>
+            {/* Background Grid */}
+            <div className="absolute inset-0 bg-[radial-gradient(#0891b2_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
+
+            {/* HUD & Reticle Overlays */}
+            <div className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between font-mono">
+              {/* Top Telemetry */}
+              <div className="flex justify-between text-xs text-teal-400/80">
+                <div>
+                  <p>LAT: {gpsCoords.lat}° N</p>
+                  <p>LON: {gpsCoords.lng}° W</p>
+                </div>
+                <div className="text-right">
+                  <p>FPS: 30.0</p>
+                  <p>GAIN: AUTO</p>
+                </div>
+              </div>
+
+              {/* Center Targeting Crosshair */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-dashed border-teal-500/50 rounded-full flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-teal-400 rounded-full shadow-lg shadow-teal-400/80"></div>
+                <div className="absolute w-full h-[1px] bg-teal-900/80"></div>
+                <div className="absolute h-full w-[1px] bg-teal-900/80"></div>
+              </div>
+
+              {/* Bottom Object Detection Banner */}
+              <div className="flex justify-between items-end text-xs">
+                <div className="bg-slate-950/90 p-3 border border-teal-800/80 rounded-xl">
+                  <p className="text-teal-300 font-bold">FRAME OBJECT DETECTED</p>
+                  <p className="text-slate-400 text-[11px]">ACTUATOR ALIGNED</p>
+                </div>
+                <p className="text-teal-600 font-mono text-xs">SYS_ID: AX-2880</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="text-center text-teal-600/60 space-y-2 font-mono py-16">
+            <Eye size={40} className="mx-auto opacity-40 text-teal-500" />
+            <p className="text-sm tracking-wider">CAMERA FEED STANDBY</p>
+          </div>
+        )}
+      </div>
+
+      {/* Control Actions Footer */}
+      <div className="p-4 bg-[#090d16] flex items-center justify-between text-xs font-mono">
+        <span className="text-teal-500/80">AES-256 ENCRYPTED FEED</span>
+        <div className="flex space-x-3">
+          <button className="px-4 py-2 bg-slate-900 border border-teal-900/60 text-teal-300 hover:bg-slate-800 hover:border-teal-500 transition-colors rounded-xl">
+            SNAPSHOT
+          </button>
+          <button className="px-4 py-2 bg-slate-900 border border-teal-900/60 text-teal-300 hover:bg-slate-800 hover:border-teal-500 transition-colors rounded-xl">
+            RE-CALIBRATE
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       </main>
 
       {/* --- FOOTER --- */}
